@@ -77,6 +77,16 @@ export default async function PostPage({
     );
 }
 
+export async function generateMetadata({ params }: { params: { subdomain: string, id: string } }) {
+    const blogInfo = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/v1/blog/${params.subdomain}/info`).then(res => res.json() as Promise<any>)
+    const post = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/v1/blog/${params.subdomain}/posts/${params.id}/info`).then(res => res.json() as Promise<any>)
+    return {
+        title: post.title + " - " + blogInfo.name + " - WordScribe",
+        description: post.title + " - " + blogInfo.name + " - WordScribe",
+    }
+}
+
+
 export async function UserChip({ userinfo }: { userinfo: any }) {
     return (
         <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>

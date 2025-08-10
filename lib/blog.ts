@@ -144,7 +144,7 @@ export const publishPostDraft = async (blogslug: string, postid: string, content
 export const publishDraftChanges = async (blogslug: string, postid: string, getToken: () => Promise<string>) => {
     getToken().then(async (token) => {
         console.log("Publishing draft");
-        await fetch(process.env.EXPO_PUBLIC_API_URL + "/v1/blog/" + blogslug + "/posts/" + postid + "/publish", {
+        await fetch(process.env.NEXT_PUBLIC_API_URL + "/v1/blog/" + blogslug + "/posts/" + postid + "/publish", {
             method: "POST",
             redirect: "follow",
             headers: {
@@ -157,6 +157,46 @@ export const publishDraftChanges = async (blogslug: string, postid: string, getT
         .then(data => {
             console.log(data);
             return data;
+        })
+    })
+}
+
+export const createPost = async (blogslug: string, title: string, getToken: () => Promise<string>) => {
+    return new Promise((resolve, reject) => {
+        getToken().then(async (token) => {
+            console.log("Creating post");
+            const res = await fetch(process.env.NEXT_PUBLIC_API_URL + "/v1/blog/" + blogslug + "/posts", {
+                method: "POST",
+                redirect: "follow",
+                headers: {
+                    "Authorization": "Bearer " + token,
+                    "Content-Type": "application/json",
+                    "Accept": "application/json",
+                },
+                body: JSON.stringify({title: title}),
+            })
+            const data = await res.json()
+            resolve(data)
+        })
+    })
+}
+
+export const deletePost = async (blogslug: string, postid: string, getToken: () => Promise<string>) => {
+    getToken().then(async (token) => {
+        console.log("Deleting post");
+        await fetch(process.env.NEXT_PUBLIC_API_URL + "/v1/blog/" + blogslug + "/posts/" + postid + "/delete", {
+            method: "DELETE",
+            redirect: "follow",
+            headers: {
+                "Authorization": "Bearer " + token,
+                "Content-Type": "application/json",
+                "Accept": "application/json",
+            },
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log(data);
+            resolve(data);
         })
     })
 }

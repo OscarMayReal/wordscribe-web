@@ -1,6 +1,6 @@
 "use client"
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarGroup, SidebarGroupLabel, SidebarGroupContent, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarTrigger, SidebarInset } from "@/components/ui/sidebar"
-import { BookmarkIcon, CompassIcon, CreditCardIcon, LibraryIcon, NewspaperIcon, PencilIcon, TagIcon, UsersIcon, VideoIcon } from "lucide-react"
+import { BookmarkIcon, CompassIcon, CreditCardIcon, LibraryIcon, NewspaperIcon, PencilIcon, SettingsIcon, TagIcon, UsersIcon, VideoIcon } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useSidebar } from "@/components/ui/sidebar"
 
@@ -76,19 +76,19 @@ export function DashboardSidebar() {
                                     </a>
                                 </SidebarMenuButton>
                             </SidebarMenuItem>
-                            <SidebarMenuItem>
+                            {/* <SidebarMenuItem>
                                 <SidebarMenuButton asChild>
                                     <a>
                                         <TagIcon />
                                         <span>Tags</span>
                                     </a>
                                 </SidebarMenuButton>
-                            </SidebarMenuItem>
-                            <SidebarMenuItem onClick={() => router.push("/dashboard/blog/collaboration")}>
+                            </SidebarMenuItem> */}
+                            <SidebarMenuItem onClick={() => router.push("/dashboard/blog/manage")}>
                                 <SidebarMenuButton asChild>
                                     <a>
-                                        <UsersIcon />
-                                        <span>Collaboration</span>
+                                        <SettingsIcon />
+                                        <span>Manage Blog</span>
                                     </a>
                                 </SidebarMenuButton>
                             </SidebarMenuItem>

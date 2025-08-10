@@ -41,7 +41,7 @@ function extractSubdomain(request: NextRequest): string | null {
   return isSubdomain ? hostname.replace(`.${rootDomainFormatted}`, '') : null;
 }
 
-export async function middleware(request: NextRequest) {
+export default clerkMiddleware( async (auth, request) => {
   const { pathname } = request.nextUrl;
   const subdomain = extractSubdomain(request);
 
@@ -57,7 +57,7 @@ export async function middleware(request: NextRequest) {
 
   // On the root domain, allow normal access
   return NextResponse.next();
-}
+})
 
 export const config = {
   matcher: [

@@ -21,6 +21,15 @@ export default async function AuthorsPage({ params }: { params: { subdomain: str
     )
 }
 
+export async function generateMetadata({ params }: { params: { subdomain: string } }) {
+    const blogInfo = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/v1/blog/${params.subdomain}/info`).then(res => res.json() as Promise<any>)
+    return {
+        title: "Authors - " + blogInfo.name + " - WordScribe",
+        description: "Authors - " + blogInfo.name + " - WordScribe",
+    }
+}
+
+
 export function UserCard({ user }: { user: any }) {
     return (
         <a href={`/authors/${user.id}`} style={{

@@ -22,6 +22,16 @@ export default async function AuthorPage({ params }: { params: { subdomain: stri
     )
 }
 
+export async function generateMetadata({ params }: { params: { subdomain: string } }) {
+    const blogInfo = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/v1/blog/${params.subdomain}/info`).then(res => res.json() as Promise<any>)
+    const author = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/v1/user/${params.author}/publicinfo`).then(res => res.json() as Promise<any>)
+    return {
+        title: author.name.firstName + " " + author.name.lastName + " - " + blogInfo.name + " - WordScribe",
+        description: author.name.firstName + " " + author.name.lastName + " - " + blogInfo.name + " - WordScribe",
+    }
+}
+
+
 export function AuthorInfoArea({ author, blogInfo }: { author: any, blogInfo: any }) {
     return (
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "10px", marginTop: "40px", marginBottom: "40px" }}>

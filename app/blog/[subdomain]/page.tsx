@@ -62,6 +62,14 @@ export function HeaderWithAd({ blogInfo, page }: { blogInfo: any, page: string }
     )
 }
 
+export async function generateMetadata({ params }: { params: { subdomain: string } }) {
+    const blogInfo = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/v1/blog/${params.subdomain}/info`).then(res => res.json() as Promise<any>)
+    return {
+        title: blogInfo.name + " - WordScribe",
+        description: blogInfo.name + " - WordScribe",
+    }
+}
+
 export function PostCard({ post }: { post: any }) {
     return (
         <a href={`/post/${post.id}`} style={{

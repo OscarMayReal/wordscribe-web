@@ -1,12 +1,16 @@
 "use client"
-import { useBlogInfo, useBlogPosts } from "@/lib/blog";
+import { createPost, useBlogInfo, useBlogPosts } from "@/lib/blog";
 import { OrganizationSwitcher, PricingTable, SignedIn, useOrganization } from "@clerk/nextjs";
-import { PenIcon, TextIcon, ZapIcon } from "lucide-react";
+import { LinkIcon, PenIcon, PlusIcon, TextIcon, ZapIcon } from "lucide-react";
 import { PlanDetailsButton, SubscriptionDetailsButton } from '@clerk/nextjs/experimental'
 import { Button } from "@/components/ui/button";
 import { Header } from "@/components/shell";
-import { createContext, useEffect } from "react";
+import { createContext, useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
+import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { useAuth } from "@clerk/nextjs";
+import { useContext } from "react";
 
 export const PostsPageContext = createContext({
     reloadPosts: () => {},
@@ -40,7 +44,8 @@ export default function PostsPage({ children }: { children: React.ReactNode }) {
                             <OrganizationSwitcher hidePersonal />
                             {blogInfo.info.plan == "blog_pro" ? <ProBadge /> : ""}
                             <div style={{flexGrow: 1}} />
-                            <Button variant="outline" onClick={() => window.open(window.location.protocol + "//" + organization.organization?.slug + "." + window.location.hostname + ":" + window.location.port, "_blank")}>View Blog</Button>
+                            <CreatePostButton />
+                            <Button variant="outline" onClick={() => window.open(window.location.protocol + "//" + organization.organization?.slug + "." + window.location.hostname + ":" + window.location.port, "_blank")}><LinkIcon size={20}/></Button>
                         </div>
                         <div style={{ display: "flex", flexDirection: "column" }}>
                             {posts.posts.map((post: any) => (
@@ -54,6 +59,43 @@ export default function PostsPage({ children }: { children: React.ReactNode }) {
                 </div>
             </div>
         </PostsPageContext.Provider>
+    )
+}
+
+function CreatePostButton() {
+    const router = useRouter()
+    const [isOpen, setIsOpen] = useState(false)
+    const [postTitle, setPostTitle] = useState("")
+    const {getToken, isLoaded} = useAuth()
+    const organization = useOrganization()
+    const postscontext = useContext(PostsPageContext)
+    return (
+        <Dialog open={isOpen} onOpenChange={setIsOpen}>
+            <DialogTrigger>
+                <Button variant="outline"><PlusIcon size={20}/></Button>
+            </DialogTrigger>
+            <DialogContent>
+                <DialogHeader>
+                    <DialogTitle>Create Post</DialogTitle>
+                    <DialogDescription>
+                        Create a new post
+                    </DialogDescription>
+                </DialogHeader>
+                <Input placeholder="Post Title" value={postTitle} onChange={(e) => setPostTitle(e.target.value)} />
+                <DialogFooter>
+                    <DialogClose asChild>
+                        <Button variant="outline">Cancel</Button>
+                    </DialogClose>
+                    <Button disabled={!postTitle || !isLoaded} onClick={async () => {
+                        const post = await createPost(organization.organization?.slug || "", postTitle, getToken!)
+                        router.push(`/dashboard/blog/posts/${post.id}/overview`)
+                        setIsOpen(false)
+                        postscontext.reloadPosts()
+                        console.log(post)
+                    }}>Create</Button>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
     )
 }
 

@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Header } from "@/components/shell";
 import { useEffect } from "react";
 
-export default function CollaborationPage() {
+export default function BillingPage() {
     const organization = useOrganization()
     const blogInfo = useBlogInfo(organization.organization?.slug || "")
     useEffect(() => {

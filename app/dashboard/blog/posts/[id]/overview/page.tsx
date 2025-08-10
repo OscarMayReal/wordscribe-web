@@ -1,10 +1,10 @@
 
 "use client"
-import { savePostDraft, usePostInfo, useUserById, setPostPublic, publishDraftChanges } from "@/lib/blog"
+import { savePostDraft, usePostInfo, useUserById, setPostPublic, publishDraftChanges, deletePost } from "@/lib/blog"
 import { useAuth, useOrganization } from "@clerk/nextjs"
 import { EyeIcon, EyeOffIcon, LinkIcon, Trash2Icon } from "lucide-react"
+import { useCallback, useState, useEffect, useRef } from "react"
 import EditorJS from "@editorjs/editorjs"
-import { useEffect, useRef, useState } from "react"
 import Header from "@editorjs/header"
 import Embed from "@editorjs/embed"
 import Alert from "editorjs-alert"
@@ -12,7 +12,9 @@ import EditorjsList from "@editorjs/list"
 import { useContext } from "react"
 import { PostsPageContext } from "@/app/dashboard/blog/posts/layout"
 import { SaveIcon } from "lucide-react"
-import { useParams } from "next/navigation"
+import { useParams, useRouter } from "next/navigation"
+import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from "@/components/ui/dialog"
+import { Button } from "@/components/ui/button"
 
 export default function PostOverviewPage({ params }: { params: { id: string } }) {
     const organization = useOrganization()
@@ -34,14 +36,78 @@ export default function PostOverviewPage({ params }: { params: { id: string } })
                 <input className="text-2xl font-medium" style={{outline: "none", border: "none", width: "100%"}} placeholder="Title" value={title} onChange={(e) => {setTitle(e.target.value)}} />
                 <div style={{ color: "#666666" }}>{new Date(postInfo.info.createdAt).toLocaleDateString()} • Created By {author.info.name?.firstName + " " + author.info.name?.lastName}</div>
                 <div style={{display: "flex", marginTop: "20px", flexDirection: "row", gap: "10px", alignItems: "center"}}>
-                    <PostActionButton onClick={() => {window.open(window.location.protocol + "//" + organization.organization?.slug + "." + window.location.hostname + ":" + window.location.port + "/post/" + params.id)}} Icon={LinkIcon} text="View Post" />
-                    <PostActionButton onClick={() => {postscontext.reloadPosts()}} Icon={Trash2Icon} text="Delete" />
-                    <PostActionButton onClick={() => {setPostPublic(organization.organization?.slug || "", params.id, !postInfo.info.public, getToken!); postscontext.reloadPosts(); postInfo.reload()}} Icon={postInfo.info.public ? EyeIcon : EyeOffIcon} text={postInfo.info.public ? "Public" : "Private"} />
+                    {postInfo.info.public && <PostActionButton onClick={() => {window.open(window.location.protocol + "//" + organization.organization?.slug + "." + window.location.hostname + ":" + window.location.port + "/post/" + params.id)}} Icon={LinkIcon} text="View Post" />}
+                    <DeletePostButton postId={params.id} />
+                    <PostActionButton onClick={async () => {
+                        try {
+                            const postId = Array.isArray(params.id) ? params.id[0] : params.id;
+                            await setPostPublic(
+                                organization.organization?.slug || "", 
+                                postId, 
+                                !postInfo.info.public, 
+                                async () => {
+                                    const token = await getToken();
+                                    if (!token) throw new Error("No authentication token available");
+                                    return token;
+                                }
+                            );
+                            postscontext.reloadPosts();
+                            postInfo.reload();
+                        } catch (error) {
+                            console.error("Error updating post visibility:", error);
+                        }
+                    }} Icon={postInfo.info.public ? EyeIcon : EyeOffIcon} text={postInfo.info.public ? "Public" : "Private"} />
                     <PostSaveArea setSavePostDiffFunction={setReloadPostDiffFunction} reloadPost={postInfo.reload} />
                 </div>
             </div>
-            <EditorJSEditor content={postInfo.info.draftContent} reloadPostDiffFunction={reloadPostDiffFunction} id={params.id} />
+            <EditorJSEditor content={postInfo.info.draftContent} reloadPostDiffFunction={() => {reloadPostDiffFunction()}} id={params.id} />
         </div>
+    )
+}
+
+export function DeletePostButton({postId}: {postId: string}) {
+    const [dialogOpen, setDialogOpen] = useState(false)
+    const organization = useOrganization()
+    const router = useRouter()
+    const {getToken, isLoaded} = useAuth();
+    const postscontext = useContext(PostsPageContext)
+    return (
+        <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+            <DialogTrigger>
+                <PostActionButton onClick={() => {}} Icon={Trash2Icon} text="Delete" />
+            </DialogTrigger>
+            <DialogContent>
+                <DialogHeader>
+                    <DialogTitle>Delete Post</DialogTitle>
+                    <DialogDescription>
+                        Are you sure you want to delete this post?
+                    </DialogDescription>
+                </DialogHeader>
+                <DialogFooter>
+                    <DialogClose asChild>
+                        <Button variant="outline">Cancel</Button>
+                    </DialogClose>
+                    <Button onClick={async () => {
+                        try {
+                            if (!postId) {
+                                console.error("No post ID available");
+                                return;
+                            }
+                            await deletePost(
+                                organization.organization?.slug || "", 
+                                postId, 
+                                getToken
+                            );
+                            postscontext.reloadPosts();
+                            setDialogOpen(false)
+                            router.replace("/dashboard/blog/posts")
+                        } catch (error) {
+                            console.error("Error deleting post:", error);
+                        }
+                    }}>Confirm</Button>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
     )
 }
 
@@ -57,38 +123,68 @@ export function PostActionButton({onClick, Icon, text}: {onClick: () => void, Ic
 export function PostSaveArea({ setSavePostDiffFunction, reloadPost }: { setSavePostDiffFunction: (func: () => void) => void, reloadPost: () => void }) {
     const params = useParams()
     const organization = useOrganization()
-    const {getToken, isLoaded} = useAuth()
-    const [needsPublish, setNeedsPublish] = useState(false)
-    const getPostSaveDiffFunction = () => {
-        if (!isLoaded) {
-            return
+    const {getToken: getClerkToken, isLoaded} = useAuth();
+    const getToken = useCallback(async (): Promise<string> => {
+        const token = await getClerkToken();
+        if (!token) {
+            throw new Error("No authentication token available");
         }
-        getToken().then((token) => {
-            fetch(`${process.env.NEXT_PUBLIC_API_URL}/v1/blog/${organization.organization?.slug}/posts/${params.id}/needspublish`, {
-                headers: {
-                    "Authorization": "Bearer " + token
+        return token;
+    }, [getClerkToken]);
+    const [needsPublish, setNeedsPublish] = useState(false)
+    const getPostSaveDiffFunction = useCallback(async () => {
+        if (!organization.organization?.slug || !params.id) {
+            return;
+        }
+        try {
+            const token = await getToken();
+            if (!token) {
+                console.error("No token available");
+                return;
+            }
+            const postId = Array.isArray(params.id) ? params.id[0] : params.id;
+            const response = await fetch(
+                `${process.env.NEXT_PUBLIC_API_URL}/v1/blog/${organization.organization.slug}/posts/${postId}/needspublish`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
                 }
-            }).then(res => res.json()).then(data => {
-                if (data.needsPublish) {
-                    console.log("needs publish")
-                    setNeedsPublish(true)
-                } else {
-                    console.log("does not need publish")
-                    setNeedsPublish(false)
-                }
-            })
-        })
-    }
-    setSavePostDiffFunction(getPostSaveDiffFunction)
+            );
+            const data = await response.json();
+            console.log(data)
+            setNeedsPublish(!!data.needsPublish);
+        } catch (error) {
+            console.error("Error checking publish status:", error);
+        }
+    }, [organization.organization?.slug, params.id, getToken]);
+
+    useEffect(() => {
+        setSavePostDiffFunction(() => getPostSaveDiffFunction)
+    }, [getPostSaveDiffFunction, setSavePostDiffFunction])
+
     useEffect(() => {
         getPostSaveDiffFunction()
-    }, [])
+    }, [getPostSaveDiffFunction])
     if (needsPublish) {
         return (
-            <PostActionButton onClick={() => {
-                publishDraftChanges(organization.organization?.slug!, params.id, getToken!).then(() => {
-                    reloadPost()
-                })
+            <PostActionButton onClick={async () => {
+                if (!organization.organization?.slug || !params.id) {
+                    console.error("Missing organization slug or post ID");
+                    return;
+                }
+                try {
+                    const postId = Array.isArray(params.id) ? params.id[0] : params.id;
+                    const token = await getToken();
+                    if (!token) {
+                        console.error("No token available");
+                        return;
+                    }
+                    await publishDraftChanges(organization.organization.slug, postId, getClerkToken);
+                    reloadPost();
+                } catch (error) {
+                    console.error("Error publishing changes:", error);
+                }
             }} Icon={SaveIcon} text="Publish Changes" />
         )
     }
