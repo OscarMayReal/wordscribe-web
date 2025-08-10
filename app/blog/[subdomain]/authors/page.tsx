@@ -29,6 +29,7 @@ export function UserCard({ user }: { user: any }) {
             alignItems: "center",
             justifyContent: "center",
             gap: "10px",
+            marginBottom: "10px",
         }}>
             <UserIcon size={20} />
             <h2>{user.name.firstName + " " + user.name.lastName}</h2>

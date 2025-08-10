@@ -8,7 +8,7 @@ export function DashboardSidebar() {
     const router = useRouter();
     const sidebar = useSidebar();
     return (
-        <Sidebar collapsible="icon">
+        <Sidebar collapsible="icon" variant="inset">
             <SidebarContent>
                 {/* <SidebarGroup className="pb-0">
                     <SidebarGroupLabel>Navigation</SidebarGroupLabel>
@@ -69,7 +69,7 @@ export function DashboardSidebar() {
                     <SidebarGroupContent>
                         <SidebarMenu>
                             <SidebarMenuItem>
-                                <SidebarMenuButton asChild>
+                                <SidebarMenuButton asChild onClick={() => router.push("/dashboard/blog/posts")}>
                                     <a>
                                         <PencilIcon />
                                         <span>Posts</span>
@@ -103,7 +103,7 @@ export function DashboardSidebar() {
                         </SidebarMenu>
                     </SidebarGroupContent>
                 </SidebarGroup>
-                {sidebar.state === "expanded" && <div className="m-4 mt-2" style={{ width: "calc(255px - 2rem)" }}>
+                {sidebar.state === "expanded" && <div className="m-4 mt-2" style={{ width: "calc(240px - 2rem)" }}>
                     <div className="font-medium">Looking for something else?</div>
                     <div className="text-sm">Currently, we only support managing your blog posts on the web, download the mobile app to unlock the full experience.</div>
                 </div>}

@@ -10,6 +10,10 @@
   },
   "dependencies": {
     "@clerk/nextjs": "^6.30.0",
+    "@editorjs/embed": "^2.7.6",
+    "@editorjs/header": "^2.8.8",
+    "@editorjs/list": "^2.0.8",
+    "@editorjs/warning": "^1.4.1",
     "@radix-ui/react-dialog": "^1.1.14",
     "@radix-ui/react-label": "^2.1.7",
     "@radix-ui/react-separator": "^1.1.7",
@@ -17,6 +21,7 @@
     "@radix-ui/react-tooltip": "^1.2.7",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "editorjs-alert": "^1.1.4",
     "editorjs-html": "^4.0.5",
     "lucide-react": "^0.525.0",
     "next": "15.4.4",

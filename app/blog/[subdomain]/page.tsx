@@ -70,6 +70,7 @@ export function PostCard({ post }: { post: any }) {
             alignItems: "center",
             justifyContent: "center",
             gap: "10px",
+            marginBottom: "10px",
         }}>
             <TextIcon size={20} />
             <h2>{post.title}</h2>

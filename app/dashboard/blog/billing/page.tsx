@@ -1,18 +1,35 @@
 "use client"
 import { useBlogInfo } from "@/lib/blog";
-import { useOrganization } from "@clerk/nextjs";
+import { OrganizationSwitcher, PricingTable, SignedIn, useOrganization } from "@clerk/nextjs";
 import { ZapIcon } from "lucide-react";
-import { PlanDetailsButton } from "@clerk/nextjs";
+import { PlanDetailsButton, SubscriptionDetailsButton } from '@clerk/nextjs/experimental'
+import { Button } from "@/components/ui/button";
+import { Header } from "@/components/shell";
+import { useEffect } from "react";
 
 export default function CollaborationPage() {
     const organization = useOrganization()
     const blogInfo = useBlogInfo(organization.organization?.slug || "")
+    useEffect(() => {
+        if (organization.organization?.slug) {
+            blogInfo.reload()
+        }
+    }, [organization.organization?.slug || ""])
     return (
-        <div style={{ display: "flex", flexDirection: "column", gap: "20px", padding: "20px" }}>
-            <h1 style={{ fontSize: "20px", display: "flex", flexDirection: "row", alignItems: "center", gap: "5px" }}><span style={{ marginRight: "5px" }}>WordScribe Blog</span> {blogInfo.info.plan == "blog_pro" ? <ProBadge /> : ""}</h1>
-            <div style={{flexGrow: 1}} />
-            <PlanDetailsButton />
-        </div>
+        <>
+            <Header name="Billing" />
+            <div style={{ display: "flex", flexDirection: "column", gap: "20px", padding: "20px" }}>
+                <div style={{ fontSize: "20px", display: "flex", flexDirection: "row", alignItems: "center", gap: "5px" }}>
+                    <OrganizationSwitcher hidePersonal />
+                    {blogInfo.info.plan == "blog_pro" ? <ProBadge /> : ""}
+                    <div style={{flexGrow: 1}} />
+                    <SubscriptionDetailsButton for="organization">
+                        <Button variant="outline">Manage Subscription</Button>
+                    </SubscriptionDetailsButton>
+                </div>
+                <PricingTable appearance={{ theme: "simple" }} forOrganizations />
+            </div>
+        </>
     )
 }
 

@@ -59,6 +59,7 @@ export default async function PostPage({
         fetch(`${process.env.NEXT_PUBLIC_API_URL}/v1/blog/${subdomain}/info`).then(res => res.json() as Promise<BlogInfo>),
         fetch(`${process.env.NEXT_PUBLIC_API_URL}/v1/blog/${subdomain}/posts/${id}/info`).then(res => res.json() as Promise<Post>)
     ]);
+    console.log(post)
     const author = await getUserById(post.writer)
     if (post.action === "show404blogpage") {
         notFound()

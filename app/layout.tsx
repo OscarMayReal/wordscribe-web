@@ -33,6 +33,7 @@ export default function RootLayout({
       <html lang="en">
         <body
           className={`${geistSans.variable} ${geistMono.variable} ${figtree.variable} antialiased`}
+          style={{ maxHeight: "100dvh" }}
         >
           {children}
         </body>

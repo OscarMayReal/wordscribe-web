@@ -4,23 +4,13 @@ import { usePathname } from "next/navigation";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList } from "./ui/breadcrumb";
 import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/nextjs";
 
-export function Header() {
+export function Header({ name }: { name: string }) {
     const path = usePathname();
     return (
         <header>
             <div style={{ width: "10px" }}/>
             <SidebarTrigger />
-            <Breadcrumb>
-                <BreadcrumbList>
-                    {path.split("/").map((item, index) => {
-                        return (
-                            <BreadcrumbItem key={index}>
-                                <BreadcrumbLink href={item}>{item}</BreadcrumbLink>
-                            </BreadcrumbItem>
-                        )
-                    })}
-                </BreadcrumbList>
-            </Breadcrumb>
+            <div>{name}</div>
             <div style={{ flex: 1 }}/>
             <SignedIn>
                 <UserButton />
