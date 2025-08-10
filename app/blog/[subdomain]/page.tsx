@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button"
 import { TextIcon } from "lucide-react"
 import Link from "next/link" 
 import { HeaderWithAd, PostCard } from "@/components/blog"
+import { BlogInfoArea } from "@/components/blog/blog-info-area"
 
 export default async function BlogPage({ params }: { params: Promise<{ subdomain: string }> }) {
     const paramsVar = await params
@@ -29,14 +30,7 @@ export default async function BlogPage({ params }: { params: Promise<{ subdomain
     )
 }
 
-function BlogInfoArea({ blogInfo }: { blogInfo: any }) {
-    return (
-        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "10px", marginTop: "40px", marginBottom: "40px" }}>
-            <img src={blogInfo.imageUrl} style={{ width: "65px", height: "65px", borderRadius: "15px", border: "1px solid var(--border)" }} />
-            <h1 className="font-figtree font-medium text-4xl">{blogInfo.name}</h1>
-        </div>
-    )
-}
+
 
 export async function generateMetadata({ params }: { params: Promise<{ subdomain: string }> }) {
     const paramsVar = await params

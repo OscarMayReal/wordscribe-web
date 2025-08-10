@@ -21,6 +21,7 @@ import { notFound } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { HeaderWithAd } from "@/components/blog";
+import { UserChip } from "@/components/blog/user-chip";
 function getUserById(id: string) {
     const res = fetch(process.env.NEXT_PUBLIC_API_URL + "/v1/user/" + id + "/publicinfo").then(res => res.json()).then(data => {
         return data
@@ -88,15 +89,3 @@ export async function generateMetadata({ params }: { params: Promise<{ subdomain
     }
 }
 
-
-function UserChip({ userinfo }: { userinfo: any }) {
-    return (
-        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-            <img src={userinfo.imageUrl} style={{ width: "45px", height: "45px", borderRadius: "999px", border: "1px solid var(--border)" }} />
-            <div>
-                <div style={{ color: "var(--foreground)", fontWeight: "500" }}>{userinfo.name.firstName + " " + userinfo.name.lastName}</div>
-                <div style={{ color: "#666666" }}>@{userinfo.username}</div>
-            </div>
-        </div>
-    )
-}

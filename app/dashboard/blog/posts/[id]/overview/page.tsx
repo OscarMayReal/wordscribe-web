@@ -1,20 +1,16 @@
 
 "use client"
-import { savePostDraft, usePostInfo, useUserById, setPostPublic, publishDraftChanges, deletePost } from "@/lib/blog"
-import { useAuth, useOrganization } from "@clerk/nextjs"
-import { EyeIcon, EyeOffIcon, LinkIcon, Trash2Icon } from "lucide-react"
-import { useCallback, useState, useEffect, useRef } from "react"
-import EditorJS from "@editorjs/editorjs"
-import Header from "@editorjs/header"
-import Embed from "@editorjs/embed"
-import Alert from "editorjs-alert"
-import EditorjsList from "@editorjs/list"
-import { useContext } from "react"
+import { usePostInfo, useUserById, setPostPublic } from "@/lib/blog"
+import { useOrganization, useAuth } from "@clerk/nextjs"
+import { EyeIcon, EyeOffIcon, LinkIcon } from "lucide-react"
+import { useState, useEffect, useContext } from "react"
 import { PostsPageContext } from "@/app/dashboard/blog/posts/layout"
-import { SaveIcon } from "lucide-react"
-import { useParams, useRouter } from "next/navigation"
-import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from "@/components/ui/dialog"
+import { useParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
+import { DeletePostButton } from "@/components/dashboard/posts/editor/delete-post-button"
+import { PostSaveArea } from "@/components/dashboard/posts/editor/post-save-area"
+import { EditorJSEditor } from "@/components/dashboard/posts/editor/editorjs-editor"
+import { PostActionButton } from "@/components/dashboard/posts/editor/post-action-button"
 
 export default function PostOverviewPage({ params }: { params: { id: string } }) {
     const organization = useOrganization()
@@ -65,198 +61,9 @@ export default function PostOverviewPage({ params }: { params: { id: string } })
     )
 }
 
-export function DeletePostButton({postId}: {postId: string}) {
-    const [dialogOpen, setDialogOpen] = useState(false)
-    const organization = useOrganization()
-    const router = useRouter()
-    const {getToken, isLoaded} = useAuth();
-    const postscontext = useContext(PostsPageContext)
-    return (
-        <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-            <DialogTrigger>
-                <PostActionButton onClick={() => {}} Icon={Trash2Icon} text="Delete" />
-            </DialogTrigger>
-            <DialogContent>
-                <DialogHeader>
-                    <DialogTitle>Delete Post</DialogTitle>
-                    <DialogDescription>
-                        Are you sure you want to delete this post?
-                    </DialogDescription>
-                </DialogHeader>
-                <DialogFooter>
-                    <DialogClose asChild>
-                        <Button variant="outline">Cancel</Button>
-                    </DialogClose>
-                    <Button onClick={async () => {
-                        try {
-                            if (!postId) {
-                                console.error("No post ID available");
-                                return;
-                            }
-                            await deletePost(
-                                organization.organization?.slug || "", 
-                                postId, 
-                                getToken
-                            );
-                            postscontext.reloadPosts();
-                            setDialogOpen(false)
-                            router.replace("/dashboard/blog/posts")
-                        } catch (error) {
-                            console.error("Error deleting post:", error);
-                        }
-                    }}>Confirm</Button>
-                </DialogFooter>
-            </DialogContent>
-        </Dialog>
-    )
-}
-
-export function PostActionButton({onClick, Icon, text}: {onClick: () => void, Icon: React.JSX.ElementType, text: string}) {
-    return (
-        <div className="postactionbutton" onClick={onClick}>
-            <Icon size={20} />
-            <div>{text}</div>
-        </div>
-    )
-}
-
-export function PostSaveArea({ setSavePostDiffFunction, reloadPost }: { setSavePostDiffFunction: (func: () => void) => void, reloadPost: () => void }) {
-    const params = useParams()
-    const organization = useOrganization()
-    const {getToken: getClerkToken, isLoaded} = useAuth();
-    const getToken = useCallback(async (): Promise<string> => {
-        const token = await getClerkToken();
-        if (!token) {
-            throw new Error("No authentication token available");
-        }
-        return token;
-    }, [getClerkToken]);
-    const [needsPublish, setNeedsPublish] = useState(false)
-    const getPostSaveDiffFunction = useCallback(async () => {
-        if (!organization.organization?.slug || !params.id) {
-            return;
-        }
-        try {
-            const token = await getToken();
-            if (!token) {
-                console.error("No token available");
-                return;
-            }
-            const postId = Array.isArray(params.id) ? params.id[0] : params.id;
-            const response = await fetch(
-                `${process.env.NEXT_PUBLIC_API_URL}/v1/blog/${organization.organization.slug}/posts/${postId}/needspublish`,
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
-                }
-            );
-            const data = await response.json();
-            console.log(data)
-            setNeedsPublish(!!data.needsPublish);
-        } catch (error) {
-            console.error("Error checking publish status:", error);
-        }
-    }, [organization.organization?.slug, params.id, getToken]);
-
-    useEffect(() => {
-        setSavePostDiffFunction(() => getPostSaveDiffFunction)
-    }, [getPostSaveDiffFunction, setSavePostDiffFunction])
-
-    useEffect(() => {
-        getPostSaveDiffFunction()
-    }, [getPostSaveDiffFunction])
-    if (needsPublish) {
-        return (
-            <PostActionButton onClick={async () => {
-                if (!organization.organization?.slug || !params.id) {
-                    console.error("Missing organization slug or post ID");
-                    return;
-                }
-                try {
-                    const postId = Array.isArray(params.id) ? params.id[0] : params.id;
-                    const token = await getToken();
-                    if (!token) {
-                        console.error("No token available");
-                        return;
-                    }
-                    await publishDraftChanges(organization.organization.slug, postId, getClerkToken);
-                    reloadPost();
-                } catch (error) {
-                    console.error("Error publishing changes:", error);
-                }
-            }} Icon={SaveIcon} text="Publish Changes" />
-        )
-    }
-    return null
-}
-
-export function EditorJSEditor({ content, reloadPostDiffFunction, id }: { content: any, reloadPostDiffFunction: () => void, id: string }) {
-    const organization = useOrganization()
-    const elementRef = useRef<HTMLDivElement>(null)
-    const editorRef = useRef<EditorJS | null>(null)
-    const { getToken, isLoaded } = useAuth()
-    useEffect(() => {
-        if (editorRef.current === null) {
-            editorRef.current = initEditorJS({ content, holder: elementRef.current!, getToken: getToken!, blogslug: organization.organization?.slug!, postid: id, reloadPostDiffFunction })
-        }
-        return () => {
-            try {
-                editorRef.current?.destroy()
-                editorRef.current = null
-            } catch (e) {
-                console.log(e)
-            }
-        }
-    }, [])
-    return (
-        <div style={{ padding: "20px", overflowY: "scroll", maxHeight: "100%", width: "100%" }} ref={elementRef}>
-        
-        </div>
-    )
-}
-
-const initEditorJS = ({ content, holder, getToken, blogslug, postid, reloadPostDiffFunction }: { content: any, holder: HTMLElement, getToken: () => Promise<string>, blogslug: string, postid: string, reloadPostDiffFunction: () => void }) => {
-    const editor = new EditorJS({
-        holder: holder,
-        data: content,
-        tools: {
-            header: Header,
-            List: {
-              class: EditorjsList,
-              inlineToolbar: true,
-              config: {
-                defaultStyle: 'unordered'
-              },
-            },
-            embed: {
-              class: Embed,
-              inlineToolbar: true,
-              config: {
-                services: {
-                  youtube: true,
-                  vimeo: true,
-                  instagram: true,
-                  twitter: true,
-                  facebook: true,
-                  tiktok: true,
-                  soundcloud: true,
-                  spotify: true,
-                  codepen: true,
-                  jsfiddle: true,
-                  replit: true,
-                }
-              }
-            },
-            alert: Alert,
-          },
-          onChange: (api, event) => {
-            editor.save().then((data) => {
-                savePostDraft(blogslug, postid, data, getToken).then(() => {
-                    reloadPostDiffFunction()
-                })
-            })
-          }
-    })
-    return editor
-}
+// This file has been refactored to use separate component files.
+// The extracted components are now located in:
+// - @/components/dashboard/posts/editor/delete-post-button
+// - @/components/dashboard/posts/editor/post-action-button
+// - @/components/dashboard/posts/editor/post-save-area
+// - @/components/dashboard/posts/editor/editorjs-editor

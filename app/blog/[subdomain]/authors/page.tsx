@@ -1,5 +1,6 @@
 import { UserIcon } from "lucide-react"
 import { HeaderWithAd } from "@/components/blog"
+import { UserCard } from "@/components/blog/user-card"
 
 export default async function AuthorsPage({ params }: { params: Promise<{ subdomain: string }> }) {
     const paramsVar = await params
@@ -31,21 +32,3 @@ export async function generateMetadata({ params }: { params: Promise<{ subdomain
     }
 }
 
-
-function UserCard({ user }: { user: any }) {
-    return (
-        <a href={`/authors/${user.id}`} style={{
-            width: "100%",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            gap: "10px",
-            marginBottom: "10px",
-        }}>
-            <UserIcon size={20} />
-            <h2>{user.name.firstName + " " + user.name.lastName}</h2>
-            <span> • </span>
-            <p>@{user.username}</p>
-        </a>
-    )
-}
