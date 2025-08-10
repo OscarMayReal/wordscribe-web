@@ -186,6 +186,6 @@ header {
     transition: all 0.05s ease-in-out;
 }
 
-
-
-
+* {
+  font-family: 'Figtree', sans-serif !important;
+}

@@ -1,29 +1,31 @@
 import { Button } from "@/components/ui/button";
+import { SignedOut, SignInButton, UserButton, SignedIn, SignUpButton } from "@clerk/nextjs";
 import { PenTool, Smartphone, BarChart, Zap, ArrowRight } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 
 export default function Home() {
 
   const features = [
     {
       icon: <PenTool className="w-6 h-6 text-indigo-600" />,
-      title: "Intuitive Writing",
-      description: "Focus on your words with our clean, distraction-free writing environment."
+      title: "RSS Reader",
+      description: "Stay updated with your favorite websites and blogs through our powerful RSS reader."
     },
     {
       icon: <Smartphone className="w-6 h-6 text-indigo-600" />,
-      title: "Mobile First",
-      description: "Write and edit on the go with our beautifully designed mobile experience."
+      title: "Save for Later",
+      description: "Bookmark articles, posts, and content to read at your convenience."
     },
     {
       icon: <BarChart className="w-6 h-6 text-indigo-600" />,
-      title: "Powerful Analytics",
-      description: "Gain insights into your writing habits and reader engagement."
+      title: "Start Your Blog",
+      description: "Create and publish your own blog with our intuitive writing and publishing tools."
     },
     {
       icon: <Zap className="w-6 h-6 text-indigo-600" />,
-      title: "AI Enhancements",
-      description: "Get smart suggestions to improve your writing in real-time."
+      title: "All-in-One Platform",
+      description: "Read, save, and create content—all in one seamless experience."
     }
   ];
 
@@ -38,12 +40,24 @@ export default function Home() {
               WordScribe
             </span>
           </div>
-          <div className="hidden md:flex items-center space-x-8">
-            <a href="#features" className="text-gray-600 hover:text-indigo-600 transition-colors">Features</a>
-            <a href="#how-it-works" className="text-gray-600 hover:text-indigo-600 transition-colors">How It Works</a>
-            <Button variant="outline" className="ml-4">Sign In</Button>
+          <div className="flex items-center space-x-2">
+            {/* <a href="#features" className="text-gray-600 hover:text-indigo-600 transition-colors">Features</a>
+            <a href="#how-it-works" className="text-gray-600 hover:text-indigo-600 transition-colors">How It Works</a> */}
+            <SignedOut>
+              <SignInButton>
+                <Button variant="outline" className="ml-4">Sign In</Button>
+              </SignInButton>
+              <SignUpButton>
+                <Button className="ml-4">Sign Up</Button>
+              </SignUpButton>
+            </SignedOut>
+            <SignedIn>
+              <Link href="/dashboard"><Button className="hidden md:block">Dashboard</Button></Link>
+              {/* <Button className="block md:hidden">Download</Button> */}
+              <div style={{ width: "10px" }}/>
+              <UserButton />
+            </SignedIn>
           </div>
-          <Button className="md:hidden" size="sm">Menu</Button>
         </div>
       </nav>
 
@@ -51,22 +65,22 @@ export default function Home() {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24">
         <div className="text-center">
           <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-6">
-            Write Better, <span className="bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">Write Smarter</span>
+            Read, Save, <span className="bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">and Create</span>
           </h1>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto mb-10">
-            WordScribe is the ultimate writing companion that helps you create, edit, and publish your best work—anytime, anywhere.
+            WordScribe is your all-in-one platform for reading RSS feeds, saving content for later, and starting your own blog—all in one place.
           </p>
           
           <div className="max-w-md mx-auto">
             <a 
-              href="/signup" 
+              href="/dashboard" 
               className="inline-flex items-center justify-center px-6 py-3 text-base font-medium text-white bg-indigo-600 border border-transparent rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
             >
               Get Started
               <ArrowRight className="w-4 h-4 ml-2" />
             </a>
             <p className="mt-3 text-sm text-gray-500">
-              Start your writing journey with WordScribe today.
+              Start curating and creating content with WordScribe today.
             </p>
           </div>
         </div>
@@ -76,9 +90,9 @@ export default function Home() {
       <section id="features" className="py-16 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">Powerful Features</h2>
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">Your Content Hub</h2>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Everything you need to take your writing to the next level.
+              A unified platform for all your content consumption and creation needs.
             </p>
           </div>
           
@@ -101,13 +115,13 @@ export default function Home() {
         <div className="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
           <h2 className="text-3xl font-bold text-white mb-6">Ready to transform your writing?</h2>
           <p className="text-xl text-indigo-100 mb-8">
-            Join thousands of writers who have already elevated their craft with WordScribe.
+            Start curating and creating content with WordScribe today.
           </p>
             <a 
-              href="/download" 
+              href="/dashboard" 
               className="inline-flex items-center justify-center px-6 py-3 text-base font-medium text-indigo-600 bg-white border border-transparent rounded-md shadow-sm hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
             >
-              Download Now
+              Get Started
               <ArrowRight className="w-4 h-4 ml-2" />
             </a>
         </div>
@@ -116,41 +130,14 @@ export default function Home() {
       {/* Footer */}
       <footer className="bg-gray-900 text-white py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+          <div className="flex flex-col align-center justify-center">
             <div>
               <div className="flex items-center space-x-2 mb-4">
-                <PenTool className="h-6 w-6 text-indigo-400" />
+                <img src="/logo.png" alt="Logo" width={15} />
                 <span className="text-xl font-bold">WordScribe</span>
               </div>
               <p className="text-gray-400">The ultimate writing companion for modern creators.</p>
             </div>
-            <div>
-              <h3 className="text-sm font-semibold text-gray-300 tracking-wider uppercase mb-4">Product</h3>
-              <ul className="space-y-3">
-                <li><a href="#features" className="text-gray-400 hover:text-white">Features</a></li>
-                <li><a href="#" className="text-gray-400 hover:text-white">Pricing</a></li>
-                <li><a href="#" className="text-gray-400 hover:text-white">Templates</a></li>
-              </ul>
-            </div>
-            <div>
-              <h3 className="text-sm font-semibold text-gray-300 tracking-wider uppercase mb-4">Company</h3>
-              <ul className="space-y-3">
-                <li><a href="#" className="text-gray-400 hover:text-white">About</a></li>
-                <li><a href="#" className="text-gray-400 hover:text-white">Blog</a></li>
-                <li><a href="#" className="text-gray-400 hover:text-white">Careers</a></li>
-              </ul>
-            </div>
-            <div>
-              <h3 className="text-sm font-semibold text-gray-300 tracking-wider uppercase mb-4">Legal</h3>
-              <ul className="space-y-3">
-                <li><a href="#" className="text-gray-400 hover:text-white">Privacy</a></li>
-                <li><a href="#" className="text-gray-400 hover:text-white">Terms</a></li>
-                <li><a href="#" className="text-gray-400 hover:text-white">Cookie Policy</a></li>
-              </ul>
-            </div>
-          </div>
-          <div className="mt-12 pt-8 border-t border-gray-800 text-center">
-            <p className="text-gray-400 text-sm">&copy; {new Date().getFullYear()} WordScribe. All rights reserved.</p>
           </div>
         </div>
       </footer>
