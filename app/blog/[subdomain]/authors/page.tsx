@@ -1,10 +1,11 @@
 import { UserIcon } from "lucide-react"
-import { HeaderWithAd } from "../page"
+import { HeaderWithAd } from "@/components/blog"
 
-export default async function AuthorsPage({ params }: { params: { subdomain: string } }) {
+export default async function AuthorsPage({ params }: { params: Promise<{ subdomain: string }> }) {
+    const paramsVar = await params
     const [blogInfo, authors] = await Promise.all([
-        fetch(`${process.env.NEXT_PUBLIC_API_URL}/v1/blog/${params.subdomain}/info`).then(res => res.json() as Promise<any>),
-        fetch(`${process.env.NEXT_PUBLIC_API_URL}/v1/blog/${params.subdomain}/authors`).then(res => res.json() as Promise<any>)
+        fetch(`${process.env.NEXT_PUBLIC_API_URL}/v1/blog/${paramsVar.subdomain}/info`).then(res => res.json() as Promise<any>),
+        fetch(`${process.env.NEXT_PUBLIC_API_URL}/v1/blog/${paramsVar.subdomain}/authors`).then(res => res.json() as Promise<any>)
     ])
     console.log(blogInfo)
     console.log(authors)
@@ -21,8 +22,9 @@ export default async function AuthorsPage({ params }: { params: { subdomain: str
     )
 }
 
-export async function generateMetadata({ params }: { params: { subdomain: string } }) {
-    const blogInfo = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/v1/blog/${params.subdomain}/info`).then(res => res.json() as Promise<any>)
+export async function generateMetadata({ params }: { params: Promise<{ subdomain: string }> }) {
+    const paramsVar = await params
+    const blogInfo = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/v1/blog/${paramsVar.subdomain}/info`).then(res => res.json() as Promise<any>)
     return {
         title: "Authors - " + blogInfo.name + " - WordScribe",
         description: "Authors - " + blogInfo.name + " - WordScribe",
@@ -30,7 +32,7 @@ export async function generateMetadata({ params }: { params: { subdomain: string
 }
 
 
-export function UserCard({ user }: { user: any }) {
+function UserCard({ user }: { user: any }) {
     return (
         <a href={`/authors/${user.id}`} style={{
             width: "100%",

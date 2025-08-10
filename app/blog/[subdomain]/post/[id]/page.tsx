@@ -20,7 +20,7 @@ import edjsHTML from 'editorjs-html';
 import { notFound } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { HeaderWithAd } from "../../page";
+import { HeaderWithAd } from "@/components/blog";
 function getUserById(id: string) {
     const res = fetch(process.env.NEXT_PUBLIC_API_URL + "/v1/user/" + id + "/publicinfo").then(res => res.json()).then(data => {
         return data
@@ -30,14 +30,14 @@ function getUserById(id: string) {
 
 var exampleList = {"id":"dXitOGrLsR","data":{"meta":{},"items":[{"meta":{},"items":[],"content":"Is"},{"meta":{},"items":[],"content":"A"},{"meta":{},"items":[],"content":"List"}],"style":"unordered"},"type":"List"}
 
-export function listRenderer(list: any) {
+function listRenderer(list: any) {
     if (list.data.style === "unordered") {
         return '<ul class="list"> ' + list.data.items.map((item: any) => '<li> • ' + item.content + '</li>').join('') + '</ul>'
     }
     return '<ol class="list"> ' + list.data.items.map((item: any) => '<li> ' + item.content + '</li>').join('') + '</ol>'
 }
 
-export function alertRenderer(alert: any) {
+function alertRenderer(alert: any) {
     return '<div class="alert"> ' + alert.data.message + '</div>'
 }
 
@@ -49,9 +49,10 @@ const plugins = {
 export default async function PostPage({
     params,
 }: {
-    params: { subdomain: string; id: string };
+    params: Promise<{ subdomain: string; id: string }>;
 }) {
-    const { subdomain, id } = params;
+    const paramsVar = await params
+    const { subdomain, id } = paramsVar;
     const edjsParser = edjsHTML(plugins);
     
     // Fetch blog info and post in parallel
@@ -77,9 +78,10 @@ export default async function PostPage({
     );
 }
 
-export async function generateMetadata({ params }: { params: { subdomain: string, id: string } }) {
-    const blogInfo = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/v1/blog/${params.subdomain}/info`).then(res => res.json() as Promise<any>)
-    const post = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/v1/blog/${params.subdomain}/posts/${params.id}/info`).then(res => res.json() as Promise<any>)
+export async function generateMetadata({ params }: { params: Promise<{ subdomain: string, id: string }> }) {
+    const paramsVar = await params
+    const blogInfo = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/v1/blog/${paramsVar.subdomain}/info`).then(res => res.json() as Promise<any>)
+    const post = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/v1/blog/${paramsVar.subdomain}/posts/${paramsVar.id}/info`).then(res => res.json() as Promise<any>)
     return {
         title: post.title + " - " + blogInfo.name + " - WordScribe",
         description: post.title + " - " + blogInfo.name + " - WordScribe",
@@ -87,7 +89,7 @@ export async function generateMetadata({ params }: { params: { subdomain: string
 }
 
 
-export async function UserChip({ userinfo }: { userinfo: any }) {
+function UserChip({ userinfo }: { userinfo: any }) {
     return (
         <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
             <img src={userinfo.imageUrl} style={{ width: "45px", height: "45px", borderRadius: "999px", border: "1px solid var(--border)" }} />
