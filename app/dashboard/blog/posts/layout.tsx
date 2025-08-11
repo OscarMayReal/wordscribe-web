@@ -4,15 +4,21 @@ import { OrganizationSwitcher, PricingTable, SignedIn, useOrganization } from "@
 import { LinkIcon, PenIcon, PlusIcon, TextIcon, ZapIcon } from "lucide-react";
 import { PlanDetailsButton, SubscriptionDetailsButton } from '@clerk/nextjs/experimental'
 import { Button } from "@/components/ui/button";
-import { Header } from "@/components/shell";
-import { createContext, useEffect, useState } from "react";
+import { Header } from "@/components/header";
+import { createContext, useEffect, useState, useCallback } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@clerk/nextjs";
 import { useContext } from "react";
+import { BlogInfo, Post } from "@/lib/types";
 
-export const PostsPageContext = createContext({
+export const PostsPageContext = createContext<{
+    reloadPosts: () => void,
+    reloadBlogInfo: () => void,
+    blogInfo: Partial<BlogInfo>,
+    posts: Post[],
+}>({
     reloadPosts: () => {},
     reloadBlogInfo: () => {},
     blogInfo: {},
@@ -35,7 +41,7 @@ export default function PostsPage({ children }: { children: React.ReactNode }) {
         }
     }, [organization.organization?.slug || ""])
     return (
-        <PostsPageContext.Provider value={{ reloadPosts: () => {posts.reload()}, reloadBlogInfo: () => {blogInfo.reload()}, blogInfo: blogInfo, posts: posts }}>
+        <PostsPageContext.Provider value={{ reloadPosts: () => {posts.reload()}, reloadBlogInfo: () => {blogInfo.reload()}, blogInfo: blogInfo.info, posts: posts.posts }}>
             <div className="pageshell">
                 <Header name="Posts" />
                 <div style={{ display: "flex", flexDirection: "row", maxHeight: "calc(100% - 50px)", minHeight: "calc(100% - 50px)" }}>
@@ -66,7 +72,14 @@ function CreatePostButton() {
     const router = useRouter()
     const [isOpen, setIsOpen] = useState(false)
     const [postTitle, setPostTitle] = useState("")
-    const {getToken, isLoaded} = useAuth()
+    const {getToken: getClerkToken, isLoaded} = useAuth()
+    const getToken = useCallback(async (): Promise<string> => {
+        const token = await getClerkToken();
+        if (!token) {
+            throw new Error("No authentication token available");
+        }
+        return token;
+    }, [getClerkToken]);
     const organization = useOrganization()
     const postscontext = useContext(PostsPageContext)
     return (
@@ -87,7 +100,7 @@ function CreatePostButton() {
                         <Button variant="outline">Cancel</Button>
                     </DialogClose>
                     <Button disabled={!postTitle || !isLoaded} onClick={async () => {
-                        const post = await createPost(organization.organization?.slug || "", postTitle, getToken!)
+                        const post = await createPost(organization.organization?.slug || "", postTitle, getToken)
                         router.push(`/dashboard/blog/posts/${post.id}/overview`)
                         setIsOpen(false)
                         postscontext.reloadPosts()

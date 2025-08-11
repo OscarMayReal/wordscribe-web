@@ -3,9 +3,12 @@ import { DashboardSidebar } from "@/components/dashboardsidebar"
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
 import { OrganizationList, SignedIn, SignedOut, SignIn } from "@clerk/nextjs"
 import { useOrganization } from "@clerk/nextjs"
+import { useEffect } from "react"
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
-    document.title = "WordScribe Dashboard"
+    useEffect(() => {
+        document.title = "WordScribe Dashboard"
+    }, [])
     return (
         <>
             <SignedIn>

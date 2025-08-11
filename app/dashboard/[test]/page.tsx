@@ -1,9 +1,10 @@
-import { Header } from "@/components/shell";
+import { Header } from "@/components/header";
 
-export default function DashboardPage() {
+export default async function DashboardPage({ params }: { params: Promise<{ test: string }> }) {
+    const { test } = await params;
     return (
         <div className="pageshell">
-            <Header />
+            <Header name={test} />
         </div>
     )
 }

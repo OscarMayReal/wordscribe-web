@@ -1,4 +1,4 @@
-import { Header } from "@/components/shell";
+import { Header } from "@/components/header";
 import { OrganizationProfile, OrganizationSwitcher } from "@clerk/nextjs";
 
 export default function CollaborationPage() {

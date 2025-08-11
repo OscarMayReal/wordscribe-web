@@ -1,5 +1,5 @@
 import { UserIcon } from "lucide-react"
-import { HeaderWithAd } from "@/components/blog"
+import { HeaderWithAd } from "@/components/headerwithad"
 
 export default async function AuthorsPage({ params }: { params: Promise<{ subdomain: string }> }) {
     const paramsVar = await params

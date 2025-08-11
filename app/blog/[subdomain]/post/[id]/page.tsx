@@ -1,26 +1,10 @@
 import "../../styles.css"
-
-interface BlogInfo {
-    // Define the shape of your blog info here
-    name: string;
-    description?: string;
-    imageUrl: string;
-    plan: string;
-    // Add other blog info fields as needed
-}
-
-interface Post {
-    id: string;
-    title: string;
-    content: any;
-    action: string;
-}
-
+import { BlogInfo, Post } from "@/lib/types";
 import edjsHTML from 'editorjs-html';
 import { notFound } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { HeaderWithAd } from "@/components/blog";
+import { HeaderWithAd } from "@/components/headerwithad";
 function getUserById(id: string) {
     const res = fetch(process.env.NEXT_PUBLIC_API_URL + "/v1/user/" + id + "/publicinfo").then(res => res.json()).then(data => {
         return data

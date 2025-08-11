@@ -1,11 +1,17 @@
 "use client"
 import { useBlogInfo } from "@/lib/blog";
-import { OrganizationSwitcher, PricingTable, SignedIn, useOrganization } from "@clerk/nextjs";
+import { SignedIn, useOrganization } from "@clerk/nextjs";
 import { ZapIcon } from "lucide-react";
-import { PlanDetailsButton, SubscriptionDetailsButton } from '@clerk/nextjs/experimental'
 import { Button } from "@/components/ui/button";
-import { Header } from "@/components/shell";
 import { useEffect } from "react";
+import { default as dynamicImport } from "next/dynamic";
+
+const PricingTable = dynamicImport(() => import("@clerk/nextjs").then(mod => mod.PricingTable), { ssr: false })
+const OrganizationSwitcher = dynamicImport(() => import('@clerk/nextjs').then(mod => mod.OrganizationSwitcher), { ssr: false })
+const SubscriptionDetailsButton = dynamicImport(() => import('@clerk/nextjs/experimental').then(mod => mod.SubscriptionDetailsButton), { ssr: false })
+const Header = dynamicImport(() => import("@/components/header").then(mod => mod.Header), { ssr: false })
+
+export const dynamic = 'force-dynamic'
 
 export default function BillingPage() {
     const organization = useOrganization()

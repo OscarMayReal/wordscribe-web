@@ -1,12 +1,13 @@
 "use client"
 import { useState } from "react"
 import { useAuth } from "@clerk/nextjs"
+import { BlogInfo, Post, User } from "./types"
 
 export function useBlogInfo(subdomain: string) {
     const reload = () => {
         setBlogInfo({loaded: false, info: {}, reload})
     }
-    var [blogInfo, setBlogInfo] = useState({loaded: false, info: {}, reload})
+    var [blogInfo, setBlogInfo] = useState<{loaded: boolean, info: Partial<BlogInfo>, reload: () => void}>({loaded: false, info: {}, reload})
     if (!blogInfo.loaded) {
         fetch(process.env.NEXT_PUBLIC_API_URL + "/v1/blog/" + subdomain + "/info").then(res => res.json()).then(data => {
             setBlogInfo({loaded: true, info: data, reload})
@@ -21,7 +22,7 @@ export function useBlogPosts(subdomain: string) {
     const reload = () => {
         setBlogInfo({loaded: false, posts: [], reload})
     }
-    var [blogInfo, setBlogInfo] = useState({loaded: false, posts: [], reload})
+    var [blogInfo, setBlogInfo] = useState<{loaded: boolean, posts: Post[], reload: () => void}>({loaded: false, posts: [], reload})
     if (!blogInfo.loaded && isLoaded) {
         getToken().then(token => {
             fetch(process.env.NEXT_PUBLIC_API_URL + "/v1/blog/" + subdomain + "/posts", {
@@ -42,7 +43,7 @@ export function usePostInfo(subdomain: string, id: string) {
     const reload = () => {
         setPostInfo({loaded: false, info: {}, reload})
     }
-    var [postInfo, setPostInfo] = useState({loaded: false, info: {}, reload})
+    var [postInfo, setPostInfo] = useState<{loaded: boolean, info: Partial<Post>, reload: () => void}>({loaded: false, info: {}, reload})
     if (!postInfo.loaded && isLoaded) {
         getToken().then(token => {
             fetch(process.env.NEXT_PUBLIC_API_URL + "/v1/blog/" + subdomain + "/posts/" + id + "/info", {
@@ -69,7 +70,7 @@ export function useUserById(id: string) {
     const reload = () => {
         setUser({loaded: false, info: {}, reload})
     }
-    var [user, setUser] = useState({loaded: false, info: {}, reload})
+    var [user, setUser] = useState<{loaded: boolean, info: Partial<User>, reload: () => void}>({loaded: false, info: {}, reload})
     if (!user.loaded) {
         fetch(process.env.NEXT_PUBLIC_API_URL + "/v1/user/" + id + "/publicinfo").then(res => res.json()).then(data => {
             setUser({loaded: true, info: data, reload})
@@ -161,7 +162,7 @@ export const publishDraftChanges = async (blogslug: string, postid: string, getT
     })
 }
 
-export const createPost = async (blogslug: string, title: string, getToken: () => Promise<string>) => {
+export const createPost = async (blogslug: string, title: string, getToken: () => Promise<string>): Promise<Post> => {
     return new Promise((resolve, reject) => {
         getToken().then(async (token) => {
             console.log("Creating post");
@@ -176,27 +177,29 @@ export const createPost = async (blogslug: string, title: string, getToken: () =
                 body: JSON.stringify({title: title}),
             })
             const data = await res.json()
-            resolve(data)
+            resolve(data as Post)
         })
     })
 }
 
 export const deletePost = async (blogslug: string, postid: string, getToken: () => Promise<string>) => {
-    getToken().then(async (token) => {
-        console.log("Deleting post");
-        await fetch(process.env.NEXT_PUBLIC_API_URL + "/v1/blog/" + blogslug + "/posts/" + postid + "/delete", {
-            method: "DELETE",
-            redirect: "follow",
-            headers: {
-                "Authorization": "Bearer " + token,
-                "Content-Type": "application/json",
-                "Accept": "application/json",
-            },
-        })
-        .then(response => response.json())
-        .then(data => {
-            console.log(data);
-            resolve(data);
+    return new Promise((resolve, reject) => {
+        getToken().then(async (token) => {
+            console.log("Deleting post");
+            await fetch(process.env.NEXT_PUBLIC_API_URL + "/v1/blog/" + blogslug + "/posts/" + postid + "/delete", {
+                method: "DELETE",
+                redirect: "follow",
+                headers: {
+                    "Authorization": "Bearer " + token,
+                    "Content-Type": "application/json",
+                    "Accept": "application/json",
+                },
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);
+                resolve(data);
+            })
         })
     })
 }

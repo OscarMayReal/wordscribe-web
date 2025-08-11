@@ -2,12 +2,12 @@
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from "./ui/dialog";
 import { Input } from "./ui/input";
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { useAuth } from "@clerk/nextjs";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL
 
-export async function createList(listName: string, getToken: () => Promise<string>) {
+async function createList(listName: string, getToken: () => Promise<string>) {
     const token = await getToken()
     const res = await fetch(API_URL + "/v1/lists", {
         method: "POST",
@@ -25,7 +25,14 @@ export async function createList(listName: string, getToken: () => Promise<strin
 }
 
 export function CreateListDialog() {
-    const { getToken, isLoaded } = useAuth()
+    const { getToken: getClerkToken, isLoaded } = useAuth()
+    const getToken = useCallback(async (): Promise<string> => {
+        const token = await getClerkToken();
+        if (!token) {
+            throw new Error("No authentication token available");
+        }
+        return token;
+    }, [getClerkToken]);
     const [listName, setListName] = useState("")
     if (!isLoaded) {
         return null
