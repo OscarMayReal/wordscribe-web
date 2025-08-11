@@ -1,21 +1,5 @@
 import "../../styles.css"
-
-interface BlogInfo {
-    // Define the shape of your blog info here
-    name: string;
-    description?: string;
-    imageUrl: string;
-    plan: string;
-    // Add other blog info fields as needed
-}
-
-interface Post {
-    id: string;
-    title: string;
-    content: any;
-    action: string;
-}
-
+import { BlogInfo, Post } from "@/lib/types";
 import edjsHTML from 'editorjs-html';
 import { notFound } from 'next/navigation';
 import { Button } from '@/components/ui/button';

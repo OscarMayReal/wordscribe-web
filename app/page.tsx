@@ -72,13 +72,13 @@ export default function Home() {
           </p>
           
           <div className="max-w-md mx-auto">
-            <a 
+            <Link
               href="/dashboard" 
               className="inline-flex items-center justify-center px-6 py-3 text-base font-medium text-white bg-indigo-600 border border-transparent rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
             >
               Get Started
               <ArrowRight className="w-4 h-4 ml-2" />
-            </a>
+            </Link>
             <p className="mt-3 text-sm text-gray-500">
               Start curating and creating content with WordScribe today.
             </p>
@@ -117,13 +117,13 @@ export default function Home() {
           <p className="text-xl text-indigo-100 mb-8">
             Start curating and creating content with WordScribe today.
           </p>
-            <a 
+            <Link
               href="/dashboard" 
               className="inline-flex items-center justify-center px-6 py-3 text-base font-medium text-indigo-600 bg-white border border-transparent rounded-md shadow-sm hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
             >
               Get Started
               <ArrowRight className="w-4 h-4 ml-2" />
-            </a>
+            </Link>
         </div>
       </section>
 

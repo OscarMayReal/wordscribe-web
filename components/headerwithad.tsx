@@ -14,7 +14,7 @@ function PageAd() {
             gap: "10px",
         }}>
             <span>Powered by Wordscribe</span>
-            <Link href={process.env.NEXT_PUBLIC_SITE_URL}>
+            <Link href={process.env.NEXT_PUBLIC_SITE_URL || "/"}>
                 <Button size="sm" variant="ghost">Create Your Own</Button>
             </Link>
         </div>
