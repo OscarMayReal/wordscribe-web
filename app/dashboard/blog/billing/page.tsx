@@ -4,7 +4,7 @@ import { OrganizationSwitcher, PricingTable, SignedIn, useOrganization } from "@
 import { ZapIcon } from "lucide-react";
 import { PlanDetailsButton, SubscriptionDetailsButton } from '@clerk/nextjs/experimental'
 import { Button } from "@/components/ui/button";
-import { Header } from "@/components/shell";
+import { Header } from "@/components/header";
 import { useEffect } from "react";
 
 export default function BillingPage() {

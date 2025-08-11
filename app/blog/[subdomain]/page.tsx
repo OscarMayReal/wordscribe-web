@@ -3,7 +3,8 @@ import "./styles.css"
 import { Button } from "@/components/ui/button"
 import { TextIcon } from "lucide-react"
 import Link from "next/link" 
-import { HeaderWithAd, PostCard } from "@/components/blog"
+import { HeaderWithAd } from "@/components/headerwithad"
+import { PostCard } from "@/components/postcard"
 
 export default async function BlogPage({ params }: { params: Promise<{ subdomain: string }> }) {
     const paramsVar = await params

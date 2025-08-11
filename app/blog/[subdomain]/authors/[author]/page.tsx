@@ -1,4 +1,5 @@
-import { HeaderWithAd, PostCard } from "@/components/blog";
+import { HeaderWithAd } from "@/components/headerwithad";
+import { PostCard } from "@/components/postcard";
 
 export default async function AuthorPage({ params }: { params: Promise<{ subdomain: string, author: string }> }) {
     const paramsVar = await params

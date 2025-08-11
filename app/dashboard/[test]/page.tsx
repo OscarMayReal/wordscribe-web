@@ -1,4 +1,4 @@
-import { Header } from "@/components/shell";
+import { Header } from "@/components/header";
 
 export default function DashboardPage() {
     return (

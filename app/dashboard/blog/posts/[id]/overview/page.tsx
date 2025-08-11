@@ -65,7 +65,7 @@ export default function PostOverviewPage({ params }: { params: { id: string } })
     )
 }
 
-export function DeletePostButton({postId}: {postId: string}) {
+function DeletePostButton({postId}: {postId: string}) {
     const [dialogOpen, setDialogOpen] = useState(false)
     const organization = useOrganization()
     const router = useRouter()
@@ -111,7 +111,7 @@ export function DeletePostButton({postId}: {postId: string}) {
     )
 }
 
-export function PostActionButton({onClick, Icon, text}: {onClick: () => void, Icon: React.JSX.ElementType, text: string}) {
+function PostActionButton({onClick, Icon, text}: {onClick: () => void, Icon: React.JSX.ElementType, text: string}) {
     return (
         <div className="postactionbutton" onClick={onClick}>
             <Icon size={20} />
@@ -120,7 +120,7 @@ export function PostActionButton({onClick, Icon, text}: {onClick: () => void, Ic
     )
 }
 
-export function PostSaveArea({ setSavePostDiffFunction, reloadPost }: { setSavePostDiffFunction: (func: () => void) => void, reloadPost: () => void }) {
+function PostSaveArea({ setSavePostDiffFunction, reloadPost }: { setSavePostDiffFunction: (func: () => void) => void, reloadPost: () => void }) {
     const params = useParams()
     const organization = useOrganization()
     const {getToken: getClerkToken, isLoaded} = useAuth();
@@ -191,7 +191,7 @@ export function PostSaveArea({ setSavePostDiffFunction, reloadPost }: { setSaveP
     return null
 }
 
-export function EditorJSEditor({ content, reloadPostDiffFunction, id }: { content: any, reloadPostDiffFunction: () => void, id: string }) {
+function EditorJSEditor({ content, reloadPostDiffFunction, id }: { content: any, reloadPostDiffFunction: () => void, id: string }) {
     const organization = useOrganization()
     const elementRef = useRef<HTMLDivElement>(null)
     const editorRef = useRef<EditorJS | null>(null)

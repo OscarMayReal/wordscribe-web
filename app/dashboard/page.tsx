@@ -1,5 +1,5 @@
 "use client"
-import { Header } from "@/components/shell";
+import { Header } from "@/components/header";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@clerk/nextjs";
 import { CreateListDialog } from "@/components/createlist";

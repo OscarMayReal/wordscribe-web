@@ -4,7 +4,7 @@ import { OrganizationSwitcher, PricingTable, SignedIn, useOrganization } from "@
 import { LinkIcon, PenIcon, PlusIcon, TextIcon, ZapIcon } from "lucide-react";
 import { PlanDetailsButton, SubscriptionDetailsButton } from '@clerk/nextjs/experimental'
 import { Button } from "@/components/ui/button";
-import { Header } from "@/components/shell";
+import { Header } from "@/components/header";
 import { createContext, useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";

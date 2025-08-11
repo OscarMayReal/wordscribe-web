@@ -20,7 +20,7 @@ import edjsHTML from 'editorjs-html';
 import { notFound } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { HeaderWithAd } from "@/components/blog";
+import { HeaderWithAd } from "@/components/headerwithad";
 function getUserById(id: string) {
     const res = fetch(process.env.NEXT_PUBLIC_API_URL + "/v1/user/" + id + "/publicinfo").then(res => res.json()).then(data => {
         return data
